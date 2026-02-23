@@ -51,7 +51,7 @@ const DashboardSidebar = () => {
           {author.charAt(0).toUpperCase()}
           {/* {console.log("Author IS IN DashboardSidebar:", author)} */} 
         </div>
-        <span className="text-white"> {role} Dashboard</span> 
+        <span className="text-white"> {role === "seller" ? "Creator" : "Buyer"} Dashboard</span> 
 
         {/* list items */}
         <div className="flex flex-col gap-6 mt-10">
@@ -123,7 +123,7 @@ const DashboardSidebar = () => {
             className="w-full px-2 hover:bg-black hover:text-white text-white cursor-pointer transition-all ease-linear duration-300 gap-2 border-b-2 border-white bg-gray-800 text-center uppercase text-sm py-2 rounded-lg"
             onClick={switchProfile}
           >
-            Switch to {pathname == "/seller/profile" ? "buyer" : "seller"}
+            Switch to {pathname == "/seller/profile" ? "Buyer" : "Creator"}
           </button>
 
         </div>

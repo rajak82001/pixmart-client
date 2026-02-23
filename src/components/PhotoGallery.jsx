@@ -5,8 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setAllPosts, setMyPosts } from "../../store/slices/postSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import Footer from "./Footer";
 
 const PhotoGallery = () => {
@@ -18,12 +20,21 @@ const PhotoGallery = () => {
 
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
+  const [loading, setLoading] = useState(true);
+
   const getAllImages = async () => {
     // if (posts.length > 0) return;
-    const res = await axios.get(import.meta.env.VITE_API_URL + "/post/getAll");
-    const { data } = res.data;
-    console.log(data);
-    dispatch(setAllPosts(data));
+    try {
+      setLoading(true);
+      const res = await axios.get(import.meta.env.VITE_API_URL + "/post/getAll");
+      const { data } = res.data;
+      console.log(data);
+      dispatch(setAllPosts(data));
+    } catch (error) {
+      console.error("Failed to fetch images:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -158,30 +169,67 @@ const PhotoGallery = () => {
         }
         /> */}
 
-          {posts?.map(({ _id, title, image, price, author }) => {
-            return (
-              <ImageCard
-                key={_id}
-                id={_id}
-                title={title}
-                author={author}
-                img={image}
-                price={price}
-                icon1={
-                  <FaShoppingCart
-                    title="Cart"
-                    onClick={() =>
-                      purchaseImage(price, _id, image, author, title)
+          {loading
+            ? Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl bg-white shadow-xl p-4 h-fit w-[250px] sm:w-[250px] transition-all duration-300"
+                >
+                  {/* image area */}
+                  <div className="w-full h-[150px] sm:h-[200px] lg:h-[220px] overflow-hidden rounded-lg relative">
+                    <Skeleton className="w-full h-full" />
+                  </div>
+
+                  {/* author badge */}
+                  <div className="mt-3 w-24 sm:w-28">
+                    <Skeleton className="w-full h-6 rounded-full" />
+                  </div>
+
+                  {/* title & price */}
+                  <div className="mt-2 space-y-1">
+                    <div className="w-3/4 sm:w-2/3">
+                      <Skeleton className="w-full h-5" />
+                    </div>
+                    <div className="w-1/2 sm:w-1/3">
+                      <Skeleton className="w-full h-4" />
+                    </div>
+                  </div>
+
+                  {/* icons row */}
+                  <div className="flex gap-3 justify-center items-center mt-2">
+                    <div className="h-6 w-6 sm:h-6 sm:w-6">
+                      <Skeleton circle className="w-full h-full" />
+                    </div>
+                    <div className="h-6 w-6 sm:h-6 sm:w-6">
+                      <Skeleton circle className="w-full h-full" />
+                    </div>
+                  </div>
+                </div>
+              ))
+            : posts?.map(({ _id, title, image, price, author }) => {
+                return (
+                  <ImageCard
+                    key={_id}
+                    id={_id}
+                    title={title}
+                    author={author}
+                    img={image}
+                    price={price}
+                    icon1={
+                      <FaShoppingCart
+                        title="Cart"
+                        onClick={() =>
+                          purchaseImage(price, _id, image, author, title)
+                        }
+                        className="text-2xl text-black cursor-pointer hover:scale-110 transition-all ease-linear duration-300"
+                      />
                     }
-                    className="text-2xl text-black cursor-pointer hover:scale-110 transition-all ease-linear duration-300"
+                    icon2={
+                      <IoIosHeart className="text-2xl text-red-500 cursor-pointer hover:scale-110 transition-all ease-linear duration-300" />
+                    }
                   />
-                }
-                icon2={
-                  <IoIosHeart className="text-2xl text-red-500 cursor-pointer hover:scale-110 transition-all ease-linear duration-300" />
-                }
-              />
-            );
-          })}
+                );
+              })}
         </div>
       </div>
 
